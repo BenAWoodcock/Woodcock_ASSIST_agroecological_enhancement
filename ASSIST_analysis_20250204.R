@@ -16,7 +16,7 @@ library(nlme)
 library(tidyverse)
 library(bestNormalize)
 library(dplyr)
-library(car) #VIF
+library(car) 
 #----------------------------------------
 
 # code for model simpification in pbkrtest
@@ -41,12 +41,61 @@ KRSumFun <- function(object, objectDrop, ...) {
 setwd("P:\\NEC05829 LTS-M-ASSIST\\WP3_Woodcock\\2. Data\\1. Main arable field experiment\\Paper1_data_and_analysis\\")
 data_field_mean_T1to3 <- read.csv("Final_data_csv.csv")
 
+# Description of variables in Final_data_csv.csv
+#---------------------------
+# Year_since_est	 =  Categorical years since the establishment year -  note most sites established 2018, two sites 2019
+# Crop	=  Crop type (WW=winter wheat, OSR=oilseed, SB=spring barley, SW=spring wheat, SB=spring barley)
+# Crop_Type	 = General crop category (Winter-winter sown cereal; OSR= winter oilseed;Spring=spring sown cereal)
+# Winter_Spring_crop = 	Identifies spring or winter sown crops
+# Cereal	= identifies crop as cereal or as oilseed
+# Site	= site classifier
+# Year_callender	= calender year
+# Treat	= treatment number, where 1=BAU control, 2= Enhancing-ES, 3= Maximising-ES
+# Field_id	= unique field identifier
+# Crop_Failed	= identifies three field for particular years where the crop failed 
+# Precision_Ag	= identifies sites where precision agriculture yield data is avalliable -  this may only be on certain field in a site
+# Seed_weight_0.25	= quadrat based crop seed weight in a 0.25 m quadrat
+# Precision_Ag_whole_site	= identifies sites where all three fields for a year have precision yield data
+# PrecAg_yield_t_ha	=  Combine reported precision agriculture yield data tonnes ha-1
+# CoverCrop_inthepreceedingyear	 =  identifies field and years where a cover crop was grown prior to the spring crop
+# FYM	Margin_area_ha	= the total area of wild flower sown field margins in a field
+# in_field_strip_area_ha	= the total area of sown wild flower in-field strips in a field.
+# Crop_value_GBP_tonne_FOR_CALCULATION =  Average value of crop £ tonnes -  speific to each crop	
+# FM_yield_reduction_at_edges	= The proportional reduction of yield at field edges 
+# Treat_2_3	= identies if field is in treatment 2 and 3 (otherwise 0)
+# Treat_3	= identies if field is in treatment  3 (otherwise 0)
+# Field_total_Area_ha	= field totoal area ha
+# cropped_area_ha	= field total cropped area in ha (i.e. some field s have field margins and in-field strips)
+# Worms_Anecic_ave	= average abundance of worms
+# blackgrass_ave	= aveage count of blackgrass stems
+# Weeds_ave	= average count of weed plants
+# FM_sown_forb_SR_ave	= average species richness of the sown component of the wild flower field margins
+# Drop_disk_ave	= sward structure in the field margins measrued using a dropdisk
+# Aphid_cards_plant_aveN_eaten	= predation assessments using aphid cards, average numbers eaten
+# Slug_biomass	= average slug biomass
+# Snail_biomass	= average snail bioimass
+# Parasitized_aphids_hand_search	= average number of parasitised aphids found by hand searching
+# Aphids_hand_search	= average number of aphids found by hand searching
+# Predaors_hand_search_sum	= average number of crop canopy predators found by hand searching
+# Carabidae_Pitfall_N_mean	= average abundance of ground beetles colleted from pitfall traps
+# spider_Pitfall_N_mean	= average abundance of spiders colleted from pitfall traps
+# staph_Pitfall_N_mean	= average abundance of rove beetles colleted from pitfall traps
+# Parasitoid_OSR_N	= average abundance of parasitoids from suction samples identifed as feeding on oilseed pest species
+# Parasitoid_Cereal_N	= average abundance of parasitoids from suction samples identifed as feeding on ceral crop pest species
+# Bee_N_margin_m2	= average density of bees in field margin areas
+# Parasitoid_N_margin_m2		= average density of parasitoids in field margin areas
+# Hoverfly_N_margin_m2		= average density of hoverflies in field margin areas
+# Shannon_landuse	= shannon land use diversity in the 2km surrounding fields
+# Pollination_assessment_OSR	=  Identifies those crops of oilseed rape where a pollination effectiveness assessment was made
+# Yield_from_poll	= yield of oilseed rape attributable to pollinators in gramms
+# SMD_Ave_value_crop_ha_noAESpayment	= Standard mean difference in profit (within site and for each year) assuming no subsidies  
+# SMD_Ave_value_crop_ha_withAESpayment	= Standard mean difference in profit (within site and for each year) assuming AES subsidies  
+# SMD_Yield_Tonnes_ha_corrected = Standard mean difference in yield (within site and for each year)   
+
+
 data_field_mean_T1to3$Year_callender<-as.factor(data_field_mean_T1to3$Year_callender) 
 data_field_mean_T1to3$Year_since_est<-as.factor(data_field_mean_T1to3$Year_since_est) 
 data_field_mean_T1to3$Treat<-as.factor(data_field_mean_T1to3$Treat) 
-
-
-data_field_mean_T1to3$SemiNat_1km   <-(data_field_mean_T1to3$Grass_All_1km + data_field_mean_T1to3$Wood_1km)
 
 # Main overall data set excluding sites with missing yield data (fields that failed in a year)
 # Note -  these fields could arguably have been given a 'zero' yield (they failed) however theya re typically resown with something (e.g. a spring bean)
@@ -62,12 +111,19 @@ data_field_mean_T1to3 <- data_field_mean_T1to3 %>% filter(Crop_Failed == 0)    #
 
 field_size <- read.csv("field_size.csv")
 
+# description of variables in field_size.csv
+# Site	= site descriptor
+# Treat	= treatment number, where 1=BAU control, 2= Enhancing-ES, 3= Maximising-ES
+# Field_total_Area_ha = field total area in ha
+
+
 m1<-lm(Field_total_Area_ha ~  Treat
        
        , data=field_size)
 drop1(m1, test="F",sumFun=KRSumFun)
 # No significant difference in field size between treatments
 summary(m1)
+
 ####################################################################################
 ####################  Deriving key metrics for subsequent analysis   ###############
 ####################################################################################
@@ -246,12 +302,6 @@ drop1(yield_ab2,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=yield_ab2, plot=F)
 plot(simulationOutput) # model meets assumptions
 
-#Yield_absolute ~ Year_since_est + Crop + (1 | Site/Year_since_est)
-#                Sum Sq Mean Sq NumDF  DenDF F value    Pr(>F)    
-#Year_since_est  4.848  1.6160     3 38.893  6.1408  0.001603 ** 
-#Crop           46.139  7.6898     6 47.625 29.2209 2.203e-14 ***
-
-emmeans(yield_ab2, ~ Crop)
 summary(yield_ab2)
 
 
@@ -479,9 +529,6 @@ m1<-lmer(log(Aphid_cards_plant_aveN_eaten+1)~
            (1|Site/Year_since_est), data=aphid_card_data) 
 drop1(m1,test="user",sumFun=KRSumFun)
 summary(m1)
-#               Sum Sq Mean Sq NumDF  DenDF F value    Pr(>F)    
-#Treat          0.84484 0.42242     2 51.424  9.7980 0.0002482 ***
-#  Year_since_est 0.66212 0.22071     3 23.793  5.1192 0.0071009 ** 
 
 
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
@@ -511,9 +558,6 @@ drop1(m1,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # OK
 
-#  Non sig
-#      Sum Sq Mean Sq NumDF  DenDF F value Pr(>F)
-#Treat 0.3376  0.1688     2 93.328  1.9973 0.1415
 
 summary(m1)
 
@@ -610,13 +654,29 @@ plot(simulationOutput)   # QQ plots are fine -  look like convergence for quaran
 # soil carbon 
 
 soil<-read.csv("Soil_chemistry.csv")
-# basic model
+# description of covariates
+# Site	= site
+# Treatment	= treatments 1 to 3 (1=BU, 2=Enhancing-ES, 3=Maximising-ES)
+# C.organic_perc	=  percentage organic soil carbon - excluding inorganic carbon 
+# Bulk_Density_g_cm3	= averge field soil bulk density g cm3
+# Soil_C_orgnaic_gcm3 = average soil organic carbin content in g cm3
+
+
+# basic model/ note no year effects as only assessed once in winter of 2021
+m1<-lmer( Soil_C_orgnaic_gcm3~
+            Treatment +
+            (1|Site), data=soil,  na.action = "na.fail", REML = FALSE) 
+
+
+
+# final model
 m1<-lmer( Soil_C_orgnaic_gcm3~
             Treatment +
             (1|Site), data=soil,  na.action = "na.fail", REML = FALSE) 
 drop1(m1,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
+
 
 
 ###################################################################################
@@ -1668,9 +1728,6 @@ yield_quadrat_SMD<-lm(SMD_Yield_Tonnes_ha_corrected     ~
                         ratio_cGI_to_crop  , data=data_field_mean_T1to3) 
 drop1(yield_quadrat_SMD,test="F",sumFun=KRSumFun)
 
-#SMD_Yield_Tonnes_ha_corrected ~ ratio_cGI_to_crop + (1 | Site/Year_since_est)
-#Sum Sq Mean Sq NumDF DenDF F value  Pr(>F)  
-#ratio_cGI_to_crop  1    2.0822 97.000 -59.111  3.1809 0.0766 .
 summary(yield_quadrat_SMD)
 
 ggplot(data_field_mean_T1to3, aes(x = ratio_cGI_to_crop, y = SMD_Yield_Tonnes_ha_corrected , color=Treat_name)) +
@@ -1694,9 +1751,6 @@ profit_SMD<-lm(SMD_Ave_value_crop_ha_noAESpayment    ~
                  ratio_cGI_to_crop   , data=data_field_mean_T1to3) 
 drop1(profit_SMD,test="F",sumFun=KRSumFun)
 
-#SMD_Yield_Tonnes_ha_corrected ~ ratio_cGI_to_crop + (1 | Site/Year_since_est)
-#Sum Sq Mean Sq NumDF DenDF F value  Pr(>F)  
-#ratio_cGI_to_crop 2.0822  2.0822     1   147  3.2247 0.07459 .
 summary(profit_SMD)
 
 # model checks
@@ -1725,9 +1779,7 @@ m1<-lm(SMD_Ave_value_crop_ha_withAESpayment    ~
          ratio_cGI_to_crop   , data=data_field_mean_T1to3) 
 drop1(profit_SMD,test="F",sumFun=KRSumFun)
 
-#SMD_Yield_Tonnes_ha_corrected ~ ratio_cGI_to_crop + (1 | Site/Year_since_est)
-#Sum Sq Mean Sq NumDF DenDF F value  Pr(>F)  
-#ratio_cGI_to_crop  1    60.254 97.000  -59.111  237.76 < 2.2e-16 ***
+
 summary(m1)
 
 # model checks
@@ -1746,159 +1798,3 @@ ggplot(data_field_mean_T1to3, aes(x = ratio_cGI_to_crop, y = SMD_Ave_value_crop_
     legend.text = element_text(size = 14)    # Change legend text font size
   )
 
-
-
-
-############################################################################################
-#   Example Tweedie distribution code for simplifying models for main paper tests
-
-
-data_field_mean_T1to3$metric<-data_field_mean_T1to3$Parasitized_aphids_hand_search
-data_field_mean_T1to3$metric<-data_field_mean_T1to3$Predaors_hand_search_sum
-
-# The Tweedie distribution is useful when your data are continuous and overdispersed, with support for both continuous (positive) and discrete components.
-model_tweedie1 <- glmmTMB(
-  metric ~  Treat +
-    Year_since_est+ 
-    Treat*Year_since_est +
-    (1|Site/Year_since_est),                # Mean structure
-  tweedie(link = "log"), # Tweedie family with log link
-  data = data_field_mean_T1to3)
-# Failed to converge with interactions  - simplify fixed effect structure
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie2, plot=F)
-plot(simulationOutput) #
-
-model_tweedie2 <- glmmTMB(
-  metric ~  Treat +
-    Year_since_est+ 
-    (1|Site/Year_since_est),                # Mean structure
-  tweedie(link = "log"), # Tweedie family with log link
-  data = data_field_mean_T1to3)
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie2, plot=F)
-plot(simulationOutput) # 
-
-# Likelihood ratio test
-anova(model_tweedie1, model_tweedie2, test = "Chisq")
-
-
-model_tweedie3 <- glmmTMB(
-  metric ~  Treat +
-    (1|Site/Year_since_est),                # Mean structure
-  tweedie(link = "log"), # Tweedie family with log link
-  data = data_field_mean_T1to3)
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie3, plot=F)
-plot(simulationOutput) #
-
-# Likelihood ratio test
-anova(model_tweedie2, model_tweedie3, test = "Chisq")
-
-
-
-model_tweedie4 <- glmmTMB(
-  metric ~  
-    Year_since_est+ 
-    (1|Site/Year_since_est),                # Mean structure
-  tweedie(link = "log"), # Tweedie family with log link
-  data = data_field_mean_T1to3)
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie4, plot=F)
-plot(simulationOutput) #
-
-# Likelihood ratio test
-anova(model_tweedie2, model_tweedie4, test = "Chisq")
-
-
-
-model_tweedie5 <- glmmTMB(
-  metric ~  1 +
-    (1|Site/Year_since_est),                # Mean structure
-  tweedie(link = "log"), # Tweedie family with log link
-  data = data_field_mean_T1to3)
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie5, plot=F)
-plot(simulationOutput) #
-
-
-# Likelihood ratio test
-anova(model_tweedie3, model_tweedie5, test = "Chisq")
-
-anova(model_tweedie4, model_tweedie5, test = "Chisq")
-
-
-
-#####################################################################################
-#  Supplementary analysis for Tweedie distributed data testing for wider environmental
-# predictors of population responses of beneficial inverts.  Example code.
-
-m1int<-glmmTMB(   metric       ~ 1+
-                    (1|Site/Year_since_est),   
-                  tweedie(link = "log"), # Tweedie family with log link
-                  data=data_field_mean_T1to3 ) 
-
-model_tweedie1<-glmmTMB(   metric       ~ Year_since_est+
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie1, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie1, plot=F)
-plot(simulationOutput) #
-
-model_tweedie1<-glmmTMB(   metric       ~    Drop_disk_ave  +
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie1, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie1, plot=F)
-plot(simulationOutput) #
-
-model_tweedie2<-glmmTMB(   metric       ~     ratio_FM_to_crop	+
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie2, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie2, plot=F)
-plot(simulationOutput) #
-
-model_tweedie3<-glmmTMB(   metric       ~  Ratio_IFS_to_crop  +
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie3, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie3, plot=F)
-plot(simulationOutput) #
-
-
-model_tweedie4<-glmmTMB(   metric       ~   FYM  +
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie4, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie4, plot=F)
-plot(simulationOutput) #
-
-
-model_tweedie5<-glmmTMB(   metric       ~ 
-                             CoverCrop_inthepreceedingyear +
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie5, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie5, plot=F)
-plot(simulationOutput) #
-
-model_tweedie6<-glmmTMB(   metric       ~ 
-                             Shannon_landuse+
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie6, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie6, plot=F)
-plot(simulationOutput) #
-
-
-model_tweedie7<-glmmTMB(   metric       ~ 
-                             FM_sown_forb_SR_ave+
-                             (1|Site/Year_since_est),   
-                           tweedie(link = "log"), # Tweedie family with log link
-                           data=data_field_mean_T1to3 ) 
-anova(m1int, model_tweedie7, test = "Chisq")
-simulationOutput<-simulateResiduals(fittedModel=model_tweedie7, plot=F)
-plot(simulationOutput) #
