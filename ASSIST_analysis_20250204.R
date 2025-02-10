@@ -768,14 +768,14 @@ drop1(m1,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
 
-ggplot(data=soil, aes(y=Soil_C_orgnaic_gcm3 , x=Treat, fill=Treat)) +  
+ggplot(data=soil, aes(y=(1000*Soil_C_orgnaic_gcm3) , x=Treat, fill=Treat)) +  
   geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
-  coord_cartesian(ylim = c(0, 0.13))  +# Adjusts view without removing data
+  #coord_cartesian(ylim = c(0, 0.13))  +# Adjusts view without removing data
   geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
   theme_bw()+   #  white background
   labs(
     x = NULL  ,                                     # X-axis legend
-    y = "Soil Carbon (g.cm^3)"                                        # Y-axis legend
+    y = "Soil Carbon (mg.cm^3)"                                        # Y-axis legend
   )  +
   theme(legend.position = "none",
         panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
@@ -1232,9 +1232,9 @@ plot(simulationOutput) #
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 # sig
 
-ggplot(data=data_field_mean_T1to3 , aes(y=Parasitoid_N_margin_m2, x=Treat, fill=Treat)) +  
+ggplot(data=MArgin_parasitoids_no_outlier_EH_T1_2019  , aes(y=Parasitoid_N_margin_m2, x=Treat, fill=Treat)) +  
   geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
-  coord_cartesian(ylim = c(0, 0.5))  +# Adjusts view without removing data
+  coord_cartesian(ylim = c(0, 0.2))  +# Adjusts view without removing data
   geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
   theme_bw()+   #  white background
   labs(
@@ -1390,7 +1390,7 @@ anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
 ggplot(data=data_field_mean_T1to3 , aes(y=Weeds_ave, x=Treat, fill=Treat)) +  
   geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
- # coord_cartesian(ylim = c(0, 5))  +# Adjusts view without removing data
+ coord_cartesian(ylim = c(0, 0.8))  +# Adjusts view without removing data
   geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
   theme_bw()+   #  white background
   labs(
@@ -1592,7 +1592,7 @@ summary(model_tweedie2)
 
 ggplot(data=data_field_mean_T1to3 , aes(y=Snail_biomass, x=Treat, fill=Treat)) +  
   geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
-  coord_cartesian(ylim = c(0, 0.2))  +# Adjusts view without removing data
+  coord_cartesian(ylim = c(0, 0.3))  +# Adjusts view without removing data
   geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
   theme_bw()+   #  white background
   labs(
