@@ -36,9 +36,8 @@ KRSumFun <- function(object, objectDrop, ...) {
 
 
 # drop1(gm1,test="F",sumFun=KRSumFun)
-
 #------------------------------------------------------------------------------------
-setwd("P:\\NEC05829 LTS-M-ASSIST\\WP3_Woodcock\\2. Data\\1. Main arable field experiment\\Paper1_data_and_analysis\\")
+setwd("P:\\NEC05829 LTS-M-ASSIST\\WP3_Woodcock\\2. Data\\1. Main arable field experiment\\Paper1_data_and_analysis\\Woodcock_ASSIST_agroecological_enhancement\\")
 data_field_mean_T1to3 <- read.csv("Final_data_csv.csv")
 
 # Description of variables in Final_data_csv.csv
@@ -62,16 +61,17 @@ data_field_mean_T1to3 <- read.csv("Final_data_csv.csv")
 # in_field_strip_area_ha	= the total area of sown wild flower in-field strips in a field.
 # Crop_value_GBP_tonne_FOR_CALCULATION =  Average value of crop £ tonnes -  speific to each crop	
 # FM_yield_reduction_at_edges	= The proportional reduction of yield at field edges 
-# Treat_2_3	= identies if field is in treatment 2 and 3 (otherwise 0)
-# Treat_3	= identies if field is in treatment  3 (otherwise 0)
-# Field_total_Area_ha	= field totoal area ha
+# Treat_2_3	= identifies if field is in treatment 2 and 3 (otherwise 0)
+# Treat_3	= identifies if field is in treatment  3 (otherwise 0)
+# Field_total_Area_ha	= field total area ha
 # cropped_area_ha	= field total cropped area in ha (i.e. some field s have field margins and in-field strips)
 # Worms_Anecic_ave	= average abundance of worms
-# blackgrass_ave	= aveage count of blackgrass stems
+# blackgrass_ave	= average count of blackgrass stems
 # Weeds_ave	= average count of weed plants
 # FM_sown_forb_SR_ave	= average species richness of the sown component of the wild flower field margins
 # Drop_disk_ave	= sward structure in the field margins measrued using a dropdisk
 # Aphid_cards_plant_aveN_eaten	= predation assessments using aphid cards, average numbers eaten
+# Slug_N_LargeBeetle_bite =  average numer fo artifical slugs btiten per field
 # Slug_biomass	= average slug biomass
 # Snail_biomass	= average snail bioimass
 # Parasitized_aphids_hand_search	= average number of parasitised aphids found by hand searching
@@ -105,24 +105,6 @@ data_field_mean_T1to3 <- data_field_mean_T1to3 %>% filter(Crop_Failed == 0)    #
 
 
 
-########################################################
-# field sizes
-
-
-field_size <- read.csv("field_size.csv")
-
-# description of variables in field_size.csv
-# Site	= site descriptor
-# Treat	= treatment number, where 1=BAU control, 2= Enhancing-ES, 3= Maximising-ES
-# Field_total_Area_ha = field total area in ha
-
-
-m1<-lm(Field_total_Area_ha ~  Treat
-       
-       , data=field_size)
-drop1(m1, test="F",sumFun=KRSumFun)
-# No significant difference in field size between treatments
-summary(m1)
 
 ####################################################################################
 ####################  Deriving key metrics for subsequent analysis   ###############
@@ -271,6 +253,23 @@ drop1(yield,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=yield, plot=F)
 plot(simulationOutput) # model meets assumptions
 summary(yield)
+
+ggplot(data=data_field_mean_T1to3, aes(y=SMD_Yield_Tonnes_ha_corrected, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+    geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = "Management system",                                           # X-axis legend
+    y = "Yield (SMD Tonnes / ha.)",                                        # Y-axis legend
+    fill = "Treatment"                                    # Legend title
+  )  +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+    axis.text = element_text(size = 12),                      # Adjust axis text size
+    axis.title = element_text(size = 16)                      # Adjust axis title size
+  )    
+
+
 
 
 ###########################################################################################
@@ -447,6 +446,23 @@ emmeans(Profit_noAES, ~ Treat)
 simulationOutput<-simulateResiduals(fittedModel=Profit_noAES, plot=F)
 plot(simulationOutput)  # Model meets assumptions
 
+
+ggplot(data=data_field_mean_T1to3, aes(y=Ave_value_crop_ha_noAESpayment, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = "Management system",                                           # X-axis legend
+    y = "Profit (£ / ha. / year)",                                        # Y-axis legend
+    fill = "Treatment"                                    # Legend title
+  )  +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+    axis.text = element_text(size = 12),                      # Adjust axis text size
+    axis.title = element_text(size = 16)                      # Adjust axis title size
+  )    
+
+
 #######################################################################################
 # Profit including the AES payments
 
@@ -484,8 +500,23 @@ simulationOutput<-simulateResiduals(fittedModel=Profit_withAES, plot=F)
 plot(simulationOutput)   # Model meets assumptions
 
 
+ggplot(data=data_field_mean_T1to3, aes(y=Ave_value_crop_ha_withAESpayment, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = "Management system",                                           # X-axis legend
+    y = "Profit (£ / ha. / year)",                                        # Y-axis legend
+    fill = "Treatment"                                    # Legend title
+  )  +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+    axis.text = element_text(size = 12),                      # Adjust axis text size
+    axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
 ###################################################################################
-#  ES service adn biodiversity  measures
+#  ES service and biodiversity  measures
 
 # basic model in terms of fixed and random effects
 
@@ -534,6 +565,23 @@ summary(m1)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # Model meets assumptions
 
+ggplot(data=aphid_card_data, aes(y=Aphid_cards_plant_aveN_eaten, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  coord_cartesian(ylim = c(0, 2.5))  +# Adjusts view without removing data
+
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Aphids eaten (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+    axis.text = element_text(size = 16),                      # Adjust axis text size
+    axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
 
 #---------------------------------------------------------------------------------------
 #Slug_aveN_LargeBeetle_bite
@@ -550,7 +598,6 @@ simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # some deviations  -  try transformation to deal with
 
 
-
 m1<-lmer( log(Slug_aveN_LargeBeetle_bite+1)~
             1 +
             (1|Site/Year_since_est), data=data_field_mean_T1to3,  na.action = "na.fail", REML = FALSE) 
@@ -560,6 +607,20 @@ plot(simulationOutput)   # OK
 
 
 summary(m1)
+
+ggplot(data=data_field_mean_T1to3, aes(y=Slug_aveN_LargeBeetle_bite, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Slugs bitten (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 
 #---------------------------------------------------------------------------------------
@@ -625,6 +686,19 @@ plot(simulationOutput) # looks good
 summary(model_tweedie4)
 
 
+ggplot(data=data_field_mean_T1to3, aes(y=log(Parasitized_aphids_hand_search+1) , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Aphids (ln N+1)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 
 
@@ -650,6 +724,23 @@ simulationOutput<-simulateResiduals(fittedModel=m_OSR, plot=F)
 plot(simulationOutput)   # QQ plots are fine -  look like convergence for quarantines failed (low replication0), model ok
 
 
+ggplot(data=OSR, aes(y=Yield_from_poll , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Seed set (g)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
+
+
 #-----------------------------------------------------------------------------
 # soil carbon 
 
@@ -664,18 +755,33 @@ soil<-read.csv("Soil_chemistry.csv")
 
 # basic model/ note no year effects as only assessed once in winter of 2021
 m1<-lmer( Soil_C_orgnaic_gcm3~
-            Treatment +
+            Treat +
             (1|Site), data=soil,  na.action = "na.fail", REML = FALSE) 
 
 
 
 # final model
 m1<-lmer( Soil_C_orgnaic_gcm3~
-            Treatment +
+            Treat +
             (1|Site), data=soil,  na.action = "na.fail", REML = FALSE) 
 drop1(m1,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
+
+ggplot(data=soil, aes(y=Soil_C_orgnaic_gcm3 , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 0.13))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Soil Carbon (g.cm^3)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )   
 
 
 
@@ -707,6 +813,21 @@ summary(m1)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
 
+ggplot(data=data_field_mean_T1to3, aes(y=staph_Pitfall_N_mean , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  #coord_cartesian(ylim = c(0, 0.13))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
 
 #Worms_Anecic_ave
 
@@ -719,6 +840,24 @@ drop1(m1,test="F",sumFun=KRSumFun)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
 
+
+ggplot(data=data_field_mean_T1to3, aes(y=Worms_Anecic_ave , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  #coord_cartesian(ylim = c(0, 0.13))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
+
 # Carabidae_Pitfall_N_mean_ln
 
 m1<-lmer(log(1+Carabidae_Pitfall_N_mean) ~
@@ -729,6 +868,23 @@ summary(m1)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
 
+ggplot(data=data_field_mean_T1to3, aes(y=Carabidae_Pitfall_N_mean , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 35
+  ))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
 #spider_Pitfall_N_mean_ln
 
 m1<-lmer(log(1+spider_Pitfall_N_mean) ~
@@ -738,6 +894,26 @@ drop1(m1,test="F",sumFun=KRSumFun)
 summary(m1)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
+
+
+ggplot(data=data_field_mean_T1to3, aes(y=spider_Pitfall_N_mean , x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 35
+                    ))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
+
 
 # Parasitoid_OSR_N
 # Limit data set' to OSR crops only
@@ -755,6 +931,21 @@ simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
 
 
+ggplot(data=OSR_parasitoids , aes(y=Parasitoid_OSR_N, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 75))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
 # Parasitoid_Cereal_N
 # limit data set to cereal crops only
 # subletting for oilseed  crops 
@@ -770,6 +961,21 @@ drop1(m1,test="F",sumFun=KRSumFun)
 summary(m1)
 simulationOutput<-simulateResiduals(fittedModel=m1, plot=F)
 plot(simulationOutput)   # QQ plots are fine, model ok
+
+ggplot(data=Cereal_parasitoids , aes(y=Parasitoid_Cereal_N, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  #coord_cartesian(ylim = c(0, 75))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 #--------------------------------------------------------------------------------------------
 # Predaors_hand_search_sum_ln
@@ -832,7 +1038,20 @@ plot(simulationOutput) #
 # Likelihood ratio test
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
-
+ggplot(data=data_field_mean_T1to3 , aes(y=Predaors_hand_search_sum, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 20))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance (N)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 #---------------------------------------------------------------------------------------------
 # Bee_N_margin_m2_ln
@@ -872,6 +1091,21 @@ plot(simulationOutput) #   Looks much better -some issues possible with quantile
 # Likelihood ratio test
 anova(model_tweedie1, model_tweedie2, test = "Chisq")
 # significant interaction between year and management
+
+ggplot(data=data_field_mean_T1to3 , aes(y=Bee_N_margin_m2, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 1.5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Density"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 #----------------------------------------------------------------------------
 
@@ -913,6 +1147,20 @@ plot(simulationOutput) #   these look fine now
 # Likelihood ratio test
 anova(model_tweedie1, model_tweedie2, test = "Chisq")
 
+ggplot(data=data_field_mean_T1to3 , aes(y=Hoverfly_N_margin_m2, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 1.5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Density"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 #----------------------------------------------------------------------------------------
 # Parasitoid_N_margin_m2_ln
@@ -984,13 +1232,29 @@ plot(simulationOutput) #
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 # sig
 
+ggplot(data=data_field_mean_T1to3 , aes(y=Parasitoid_N_margin_m2, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 0.5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Density"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 ########################################################################################
 # pests
 
 #blackgrass_ave	
 
-Winter_Crop <- data_field_mean_T1to3 %>% filter(Crop_Type == "Winter")
+data_field_mean_T1to3$Crop_type
+
+Winter_Crop <- data_field_mean_T1to3 %>% filter(Crop_type == "Winter")
 
 m1<-lmer(log(blackgrass_ave+1)	 ~
            1+ 
@@ -1050,6 +1314,20 @@ plot(simulationOutput) #
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
 
+ggplot(data=Winter_Crop , aes(y=blackgrass_ave, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Tiller counts"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 
 #-------------------------------------------------------------------------------------
@@ -1110,7 +1388,22 @@ plot(simulationOutput) #
 # Likelihood ratio test
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
+ggplot(data=data_field_mean_T1to3 , aes(y=Weeds_ave, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+ # coord_cartesian(ylim = c(0, 5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Plant count"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
+ 
 #------------------------------------------------------------------------------------
 #Aphids_hand_search_ln
 
@@ -1173,6 +1466,22 @@ plot(simulationOutput) #  model is better but has problems
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
 
+ggplot(data=data_field_mean_T1to3 , aes(y=log(Aphids_hand_search), x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  # coord_cartesian(ylim = c(0, 5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Abundance ln(N+1)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
+
+
 #----------------------------------------------------------------------------------------
 #Slug_biomass
 m1<-lmer( Slug_biomass~  1+
@@ -1231,6 +1540,20 @@ plot(simulationOutput) # looks ok, some issues
 # Likelihood ratio test
 anova(model_tweedie2, model_tweedie4, test = "Chisq")
 
+ggplot(data=data_field_mean_T1to3 , aes(y=Slug_biomass, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 5))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Mass (g)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 
 #----------------------------------------------------------------------------------------
@@ -1267,6 +1590,20 @@ anova(model_tweedie1, model_tweedie2, test = "Chisq")
 summary(model_tweedie2)
 
 
+ggplot(data=data_field_mean_T1to3 , aes(y=Snail_biomass, x=Treat, fill=Treat)) +  
+  geom_jitter(width = 0.2, alpha = 0.6, color = "grey") +
+  coord_cartesian(ylim = c(0, 0.2))  +# Adjusts view without removing data
+  geom_boxplot(outlier.shape = NA) +  # Avoid duplicate outliers
+  theme_bw()+   #  white background
+  labs(
+    x = NULL  ,                                     # X-axis legend
+    y = "Mass (g)"                                        # Y-axis legend
+  )  +
+  theme(legend.position = "none",
+        panel.border = element_rect(color = "black", fill = NA),   # Solid axes lines
+        axis.text = element_text(size = 16),                      # Adjust axis text size
+        axis.title = element_text(size = 16)                      # Adjust axis title size
+  )  
 
 
 #####################################################################################################
@@ -1798,3 +2135,23 @@ ggplot(data_field_mean_T1to3, aes(x = ratio_cGI_to_crop, y = SMD_Ave_value_crop_
     legend.text = element_text(size = 14)    # Change legend text font size
   )
 
+
+
+########################################################
+# field sizes
+
+
+field_size <- read.csv("field_size.csv")
+
+# description of variables in field_size.csv
+# Site	= site descriptor
+# Treat	= treatment number, where 1=BAU control, 2= Enhancing-ES, 3= Maximising-ES
+# Field_total_Area_ha = field total area in ha
+
+
+m1<-lm(Field_total_Area_ha ~  Treat
+       
+       , data=field_size)
+drop1(m1, test="F",sumFun=KRSumFun)
+# No significant difference in field size between treatments
+summary(m1)
